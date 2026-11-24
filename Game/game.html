@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccountQuest</title>
+    <link rel="stylesheet" href="gamestyle.css">
+</head>
+<body>
+    <div id="start-menu-screen" class="start-menu-screen">
+        <div class="start-menu-card">
+            <p class="start-menu-tag">ABM RPG</p>
+            <h1>AccountQuest</h1>
+            <p>Answer audit questions, defeat enemies, and uncover hidden pop-culture classes.</p>
+            <button id="start-game-button" class="start-game-button">Start Game</button>
+        </div>
+    </div>
+
+    <div id="class-selection-screen" class="class-selection-screen hidden">
+        <div class="class-selection-card">
+            <h2>Choose Your AccountQuest Path</h2>
+            <p>Select a focus to begin your accounting battle.</p>
+            <p id="secret-hints" class="secret-hints">The ledger whispers of hidden rhythms...</p>
+            <div id="class-selection-grid" class="class-selection-grid"></div>
+            <button id="class-start-button" class="class-start-button">Start Battle</button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="vfx-layer"></div>
+
+        <!-- RPG Battle Arena -->
+        <div id="battle-arena">
+            <div class="character" id="player-display">
+                <div class="player-stats">
+                    <span id="player-level">Lv. 1</span>
+                    <span id="player-exp">XP: 0/100</span>
+                </div>
+                <div id="player-class-badge" class="player-class-badge">Class: Accountancy</div>
+                <div id="equipped-hud" class="equipped-hud" aria-live="polite">
+                    <div class="equipped-slot">
+                        <span>Weapon</span>
+                        <strong id="equipped-weapon">None</strong>
+                    </div>
+                    <div class="equipped-slot">
+                        <span>Armor</span>
+                        <strong id="equipped-armor">None</strong>
+                    </div>
+                    <div class="equipped-slot">
+                        <span>Accessory</span>
+                        <strong id="equipped-accessory">None</strong>
+                    </div>
+                </div>
+                <h2>AccountQuest Adventurer</h2>
+                <div class="hp-bar"><div id="player-hp" class="hp-fill"></div></div>
+                <p id="player-hp-text">HP: 100/100</p>
+            </div>
+            <div class="character" id="enemy-display">
+                <div id="enemy-status" class="enemy-status">Enemy</div>
+                <h2 id="enemy-name">Goblin</h2>
+                <div class="hp-bar enemy-hp-bar"><div id="enemy-hp" class="hp-fill"></div></div>
+                <p id="enemy-hp-text">HP: 50/50</p>
+            </div>
+        </div>
+
+        <!-- Quiz Interface -->
+        <div id="quiz-container">
+            <div id="question">Loading question...</div>
+            <div id="inventory-panel" class="inventory-panel">
+                <span class="inventory-label">Items</span>
+                <button id="use-healing-item" class="item-button" type="button">Use Potion (0)</button>
+            </div>
+            <div id="answer-buttons" class="btn-grid"></div>
+        </div>
+
+        <!-- Game Notifications -->
+        <div id="battle-log">A wild enemy appears! Answer correctly to attack!</div>
+    </div>
+
+    <div id="level-up-overlay" class="level-up-overlay">LEVEL UP!</div>
+
+    <div id="shop-screen" class="shop-screen hidden">
+        <div class="shop-card">
+            <p class="shop-tag">Traveling Merchant</p>
+            <h2>AccountQuest Supply Shop</h2>
+            <div id="shop-items" class="shop-items"></div>
+            <button id="shop-close-button" class="shop-close-button" type="button">Continue</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="game-over-screen hidden">
+        <div class="game-over-card">
+            <h2>Battle Over</h2>
+            <p id="game-over-message">The monsters defeated you.</p>
+            <button id="retry-button">Retry</button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
