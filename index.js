@@ -29,7 +29,8 @@ let waste = [];
 let foundations = CONCEPTS.map(() => []);
 let tableau = [[], [], [], [], [], [], []];
 let selected = null;
-let statusText = 'Step 1: Click a face-up card. Step 2: Click a valid destination.';
+let statusText = 'Drag a face-up card to its matching concept stack, or click a card and its destination.';
+let activeDrag = null;
 
 function shuffle(array) {
     const copy = [...array];
@@ -79,7 +80,7 @@ function initializeGame() {
     stock.forEach((card) => (card.faceUp = false));
     waste = [];
     foundations = CONCEPTS.map(() => []);
-    statusText = 'Your game is ready. Connect cards with the same business concept.';
+    statusText = 'Your game is ready. Place each card in the stack named for its business concept.';
     render();
 }
 
@@ -100,7 +101,8 @@ function getCardFromSelection(selection) {
 function isMoveToFoundation(card, foundationIndex) {
     if (!card) return false;
     const targetPile = foundations[foundationIndex];
-    if (card.suit !== CONCEPTS[foundationIndex]) return false;
+    const targetConcept = CONCEPTS[foundationIndex];
+    if (!targetConcept || card.suit !== targetConcept) return false;
     if (targetPile.length === 0) return true;
     const topCard = targetPile[targetPile.length - 1];
     return topCard.suit === card.suit;
@@ -279,6 +281,99 @@ function checkForWin() {
     }
 }
 
+function finishDrag(event, cancelled = false) {
+    if (!activeDrag || activeDrag.pointerId !== event.pointerId) return;
+
+    const drag = activeDrag;
+    activeDrag = null;
+    drag.cardEl.classList.remove('is-dragging');
+    drag.ghost?.remove();
+
+    if (!drag.moved || cancelled) return;
+
+    const target = document.elementFromPoint(event.clientX, event.clientY);
+    const destinationEl = target instanceof Element
+        ? target.closest('.foundation, .tableau-pile')
+        : null;
+
+    if (!destinationEl) {
+        statusText = 'Card returned to its pile.';
+    } else {
+        const destination = {
+            type: destinationEl.dataset.pileType,
+            pileIndex: Number(destinationEl.dataset.pileIndex)
+        };
+        const samePile = destination.type === drag.source.type
+            && destination.pileIndex === drag.source.pileIndex;
+
+        if (!samePile && moveCard(drag.source, destination)) {
+            selected = null;
+            statusText = destination.type === 'foundation'
+                ? 'Card moved to foundation.'
+                : 'Card moved to tableau.';
+            if (destination.type === 'foundation') checkForWin();
+        } else if (!samePile) {
+            selected = null;
+            statusText = 'That move is not allowed.';
+        } else {
+            statusText = 'Card returned to its pile.';
+        }
+    }
+
+    render();
+}
+
+document.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0 || !event.isPrimary || !(event.target instanceof Element)) return;
+
+    const cardEl = event.target.closest('.card[data-source-type]');
+    if (!cardEl) return;
+
+    const rect = cardEl.getBoundingClientRect();
+    activeDrag = {
+        cardEl,
+        pointerId: event.pointerId,
+        source: {
+            type: cardEl.dataset.sourceType,
+            pileIndex: Number(cardEl.dataset.pileIndex)
+        },
+        startX: event.clientX,
+        startY: event.clientY,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top,
+        moved: false,
+        ghost: null
+    };
+    cardEl.setPointerCapture(event.pointerId);
+});
+
+document.addEventListener('pointermove', (event) => {
+    if (!activeDrag || activeDrag.pointerId !== event.pointerId) return;
+
+    if (!activeDrag.moved) {
+        const distance = Math.hypot(
+            event.clientX - activeDrag.startX,
+            event.clientY - activeDrag.startY
+        );
+        if (distance < 5) return;
+
+        activeDrag.moved = true;
+        activeDrag.cardEl.classList.add('is-dragging');
+        activeDrag.ghost = activeDrag.cardEl.cloneNode(true);
+        activeDrag.ghost.classList.remove('selected', 'is-dragging');
+        activeDrag.ghost.classList.add('drag-ghost');
+        activeDrag.ghost.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(activeDrag.ghost);
+    }
+
+    event.preventDefault();
+    activeDrag.ghost.style.left = `${event.clientX - activeDrag.offsetX}px`;
+    activeDrag.ghost.style.top = `${event.clientY - activeDrag.offsetY}px`;
+});
+
+document.addEventListener('pointerup', (event) => finishDrag(event));
+document.addEventListener('pointercancel', (event) => finishDrag(event, true));
+
 function createCardElement(card, options = {}) {
     const cardEl = document.createElement('div');
     cardEl.className = 'card';
@@ -302,6 +397,12 @@ function createCardElement(card, options = {}) {
 
     if (options.clickable) {
         cardEl.style.cursor = 'pointer';
+    }
+
+    if (options.dragSource && card?.faceUp) {
+        cardEl.dataset.sourceType = options.dragSource.type;
+        cardEl.dataset.pileIndex = options.dragSource.pileIndex;
+        cardEl.style.cursor = 'grab';
     }
 
     return cardEl;
@@ -338,6 +439,7 @@ function renderWaste() {
     const card = waste[waste.length - 1];
     const cardEl = createCardElement(card, {
         clickable: true,
+        dragSource: { type: 'waste', pileIndex: 0 },
         selected: selected && selected.type === 'waste'
     });
 
@@ -352,14 +454,26 @@ function renderFoundations() {
     foundations.forEach((pile, index) => {
         const foundationSlot = document.createElement('div');
         foundationSlot.className = 'foundation';
+        foundationSlot.dataset.concept = CONCEPTS[index];
+        foundationSlot.setAttribute(
+            'aria-label',
+            `${CONCEPTS[index]} stack, ${pile.length} of ${BUSINESS_RANKS.length} cards`
+        );
 
         const label = document.createElement('div');
         label.className = 'pile-label';
         label.textContent = CONCEPTS[index];
         foundationSlot.appendChild(label);
 
+        const count = document.createElement('div');
+        count.className = 'stack-count';
+        count.textContent = `${pile.length}/${BUSINESS_RANKS.length}`;
+        foundationSlot.appendChild(count);
+
         const zone = document.createElement('div');
         zone.className = 'foundation-zone';
+        foundationSlot.dataset.pileType = 'foundation';
+        foundationSlot.dataset.pileIndex = index;
 
         if (pile.length === 0) {
             const empty = document.createElement('div');
@@ -369,6 +483,7 @@ function renderFoundations() {
             const card = pile[pile.length - 1];
             const cardEl = createCardElement(card, {
                 clickable: true,
+                dragSource: { type: 'foundation', pileIndex: index },
                 selected: selected && selected.type === 'foundation' && selected.pileIndex === index
             });
             cardEl.onclick = () => handleCardClick('foundation', index);
@@ -387,6 +502,8 @@ function renderTableau() {
     tableau.forEach((pile, pileIndex) => {
         const column = document.createElement('div');
         column.className = 'tableau-pile';
+        column.dataset.pileType = 'tableau';
+        column.dataset.pileIndex = pileIndex;
 
         if (pile.length === 0) {
             const empty = document.createElement('div');
@@ -400,6 +517,9 @@ function renderTableau() {
         pile.forEach((card, cardIndex) => {
             const cardEl = createCardElement(card, {
                 clickable: true,
+                dragSource: cardIndex === pile.length - 1
+                    ? { type: 'tableau', pileIndex }
+                    : null,
                 selected: selected && selected.type === 'tableau' && selected.pileIndex === pileIndex && cardIndex === pile.length - 1
             });
 

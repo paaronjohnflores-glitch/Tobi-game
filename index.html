@@ -204,6 +204,18 @@
         border-radius: 12px;
       }
 
+      .foundation-zone {
+        position: relative;
+        width: var(--card-width);
+        min-height: var(--card-height);
+      }
+
+      .foundation-zone .empty-slot {
+        width: var(--card-width);
+        height: var(--card-height);
+        border-radius: 12px;
+      }
+
       .empty-slot {
         border: 2px dashed var(--empty);
         background: rgba(255, 255, 255, 0.02);
@@ -228,6 +240,26 @@
         position: relative;
         user-select: none;
         transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .card[data-source-type] {
+        touch-action: none;
+      }
+
+      .drag-ghost {
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        margin: 0;
+        pointer-events: none;
+        transform: none;
+        transition: none;
+        opacity: 0.95;
+      }
+
+      .card.is-dragging {
+        opacity: 0.35;
       }
 
       .card.face-down {
@@ -363,6 +395,14 @@
         color: rgba(255,255,255,0.8);
       }
 
+      .stack-count {
+        margin: -4px 0 4px;
+        color: var(--gold);
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-align: center;
+      }
+
       .goal-row {
         display: flex;
         gap: 6px;
@@ -490,7 +530,7 @@
       </header>
 
       <div class="info-panel">
-        <div><strong>Goal:</strong> Sort every card into one of the five business concept stacks.</div>
+        <div><strong>Goal:</strong> Sort every card into its matching named stack. The count below each name shows how many cards it contains.</div>
         <div class="goal-row">
           <span class="goal-pill">Markup</span>
           <span class="goal-pill">Markdown</span>
@@ -498,7 +538,7 @@
           <span class="goal-pill">Rate</span>
           <span class="goal-pill">Proportion</span>
         </div>
-        <div style="margin-top: 8px;"><strong>How to play:</strong> Click a face-up card, then place it on a card or stack with the same business concept. Card values and color do not matter.</div>
+        <div style="margin-top: 8px;"><strong>How to play:</strong> Drag a face-up card onto a card or stack with the same business concept, or click a card and then its destination. Card values and color do not matter.</div>
       </div>
 
       <div class="top-row">
