@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Math Duo</title>
+    <style>
+      :root {
+        --bg: #0f5e3c;
+        --table: #0a472d;
+        --panel: #ffffff;
+        --primary: #5bcb66;
+        --primary-dark: #3da74c;
+        --secondary: #2f6ae5;
+        --secondary-soft: #dfeaff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --gold: #fbbf24;
+        --danger: #ef4444;
+        --line: #e5e7eb;
+        --shadow: 0 12px 32px rgba(31, 41, 55, 0.12);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(ellipse at top, rgba(48, 141, 91, 0.9), transparent 60%),
+          var(--table);
+        font-family: Arial, Helvetica, sans-serif;
+        color: #f4f7fb;
+      }
+
+      .app {
+        width: min(100%, 1000px);
+        margin: 0 auto;
+        padding: 16px 22px 20px;
+      }
+
+      .start-screen {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 16px 18px;
+      }
+
+      .start-screen[hidden] {
+        display: none;
+      }
+
+      .start-card {
+        width: min(100%, 760px);
+        padding: clamp(22px, 4vw, 32px);
+        text-align: center;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        color: var(--text);
+      }
+
+      .start-mark {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 10px;
+        object-fit: contain;
+        animation: mascot-float 3s ease-in-out infinite;
+      }
+
+      .mascot-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .mascot {
+        width: 76px;
+        height: 76px;
+        flex: 0 0 auto;
+        object-fit: contain;
+        animation: mascot-float 3s ease-in-out infinite;
+      }
+
+      .mascot-bubble {
+        position: relative;
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 18px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        color: var(--text);
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .mascot-bubble::before {
+        position: absolute;
+        top: 50%;
+        left: -9px;
+        width: 16px;
+        height: 16px;
+        background: var(--panel);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        border-left: 1px solid rgba(255, 255, 255, 0.6);
+        content: "";
+        transform: translateY(-50%) rotate(45deg);
+      }
+
+      .mascot-bar.is-happy .mascot {
+        animation: mascot-cheer 0.6s ease-in-out 2;
+      }
+
+      .mascot-bar.is-encouraging .mascot {
+        animation: mascot-nod 0.7s ease-in-out 2;
+      }
+
+      @keyframes mascot-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+
+      @keyframes mascot-cheer {
+        0%, 100% { transform: rotate(0) scale(1); }
+        50% { transform: rotate(-8deg) scale(1.08); }
+      }
+
+      @keyframes mascot-nod {
+        0%, 100% { transform: rotate(0); }
+        50% { transform: rotate(7deg); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .start-mark,
+        .mascot,
+        .mascot-bar.is-happy .mascot,
+        .mascot-bar.is-encouraging .mascot {
+          animation: none;
+        }
+      }
+
+      .start-card h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 2.6rem);
+      }
+
+      .start-card p {
+        margin: 8px 0 14px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .start-settings {
+        display: grid;
+        gap: 8px;
+        margin: 0 auto 20px;
+        max-width: 320px;
+        text-align: left;
+        font-weight: 700;
+      }
+
+      .start-settings select {
+        width: 100%;
+      }
+
+      .level-list {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-auto-rows: 112px;
+        align-items: start;
+        gap: 6px 4px;
+        margin: 0 auto 10px;
+      }
+
+      .level-list::before {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(#dce9dd, #dce9dd) 16.66% 33px / 66.66% 12px no-repeat,
+          linear-gradient(#dce9dd, #dce9dd) 16.66% 151px / 66.66% 12px no-repeat,
+          linear-gradient(#dce9dd, #dce9dd) 83.33% 33px / 12px 118px no-repeat;
+        content: "";
+        pointer-events: none;
+      }
+
+      .level-option {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        min-height: 0;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+        padding: 0 4px 12px;
+        border: 0;
+        border-radius: 16px;
+        background: transparent;
+        color: var(--text);
+        box-shadow: none;
+      }
+
+      .level-option:hover:not(:disabled) {
+        background: transparent;
+        transform: translateY(-2px);
+      }
+
+      .level-option .level-node {
+        display: grid;
+        width: 68px;
+        height: 68px;
+        place-items: center;
+        border: 5px solid white;
+        border-radius: 50%;
+        background: #48b85a;
+        box-shadow: 0 5px 12px rgba(31, 41, 55, 0.2);
+        color: white;
+        font-size: 1.7rem;
+        font-weight: 800;
+      }
+
+      .level-option:disabled {
+        cursor: not-allowed;
+        opacity: 1;
+        transform: none;
+      }
+
+      .level-option:disabled .level-node {
+        background: #9ca3af;
+        box-shadow: none;
+      }
+
+      .level-option.is-selected .level-node {
+        background: #f3b640;
+        box-shadow: 0 0 0 4px rgba(243, 182, 64, 0.25), 0 5px 12px rgba(31, 41, 55, 0.2);
+      }
+
+      .level-option strong {
+        font-size: 0.95rem;
+      }
+
+      .level-option > span:last-child {
+        color: var(--muted);
+        font-size: 0.75rem;
+      }
+
+      .level-option:nth-child(4) {
+        grid-column: 3;
+        grid-row: 2;
+      }
+
+      .level-option:nth-child(5) {
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      .level-option:nth-child(6) {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      .start-button {
+        width: 100%;
+        max-width: 320px;
+        min-height: 46px;
+      }
+
+      .next-level-button {
+        margin-top: 12px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), #89d77a);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 1.3rem;
+        box-shadow: var(--shadow);
+      }
+
+      .stats {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .pill {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        color: var(--text);
+      }
+
+      .difficulty-select {
+        padding: 9px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+
+      .progress-wrap {
+        margin-bottom: 12px;
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.88rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .progress-bar {
+        height: 8px;
+        width: 100%;
+        background: #e7edf8;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--primary), #7be081);
+        border-radius: inherit;
+        transition: width 0.25s ease;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 16px 18px 14px;
+        color: var(--text);
+      }
+
+      #game-card {
+        background: #111111;
+        border-color: #333333;
+        color: #f9fafb;
+      }
+
+      .lesson-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 8px;
+      }
+
+      .tag {
+        background: var(--secondary-soft);
+        color: var(--secondary);
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      .heart-row {
+        color: var(--danger);
+        font-size: 1.1rem;
+        letter-spacing: 0.08em;
+      }
+
+      .prompt {
+        font-size: clamp(1.4rem, 2.5vw, 2rem);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 10px;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .option {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid var(--line);
+        background: white;
+        border-radius: 16px;
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text);
+        cursor: pointer;
+        transition: border 0.15s ease, transform 0.15s ease, background 0.15s ease;
+      }
+
+      .option:hover {
+        border-color: var(--secondary);
+        transform: translateY(-1px);
+      }
+
+      .option.correct {
+        background: rgba(91, 203, 102, 0.12);
+        border-color: var(--primary);
+        color: #1d7f2a;
+      }
+
+      .option.wrong {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.6);
+        color: #b91c1c;
+      }
+
+      .feedback {
+        min-height: 24px;
+        margin-top: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .feedback.correct {
+        color: var(--primary-dark);
+      }
+
+      .feedback.wrong {
+        color: var(--danger);
+      }
+
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        gap: 8px;
+      }
+
+      .primary-btn,
+      .secondary-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 10px 16px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .primary-btn {
+        background: var(--primary);
+        color: white;
+      }
+
+      .primary-btn:hover { background: var(--primary-dark); }
+
+      .secondary-btn {
+        background: #edf2ff;
+        color: var(--secondary);
+      }
+
+      .summary {
+        display: none;
+        text-align: center;
+      }
+
+      .summary.visible {
+        display: block;
+      }
+
+      .summary h2 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin-bottom: 10px;
+      }
+
+      .summary-score {
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin: 10px 0;
+      }
+
+      .summary .primary-btn {
+        margin-top: 14px;
+      }
+
+      @media (max-width: 620px) {
+        .level-list {
+          gap: 6px;
+          grid-auto-rows: 108px;
+        }
+
+        .level-list::before {
+          background:
+            linear-gradient(#dce9dd, #dce9dd) 16.66% 29px / 66.66% 10px no-repeat,
+            linear-gradient(#dce9dd, #dce9dd) 16.66% 143px / 66.66% 10px no-repeat,
+            linear-gradient(#dce9dd, #dce9dd) 83.33% 29px / 10px 114px no-repeat;
+        }
+
+        .level-option {
+          padding: 0 2px 10px;
+        }
+
+        .level-option .level-node {
+          width: 60px;
+          height: 60px;
+        }
+
+        .level-option strong {
+          font-size: 0.8rem;
+        }
+
+        .level-option > span:last-child {
+          font-size: 0.68rem;
+        }
+
+        .mascot-bar {
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .mascot {
+          width: 52px;
+          height: 52px;
+        }
+
+        .mascot-bubble {
+          padding: 10px 12px;
+          font-size: 0.85rem;
+        }
+
+        .app {
+          padding: 14px 14px 20px;
+        }
+
+        .stats {
+          gap: 6px;
+        }
+
+        .pill {
+          padding: 6px 9px;
+          font-size: 0.8rem;
+        }
+
+        .topbar {
+          align-items: center;
+          margin-bottom: 10px;
+        }
+
+        .controls {
+          flex-direction: row;
+          gap: 8px;
+          margin-top: 12px;
+        }
+
+        .options {
+          grid-template-columns: 1fr;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+          width: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="start-screen" class="start-screen" aria-labelledby="start-title">
+      <section class="start-card">
+        <img class="start-mark" src="sprite_happy.jpg" alt="Your friendly Business Math Duo guide" />
+        <h1 id="start-title">Business Math Duo</h1>
+        <p>Complete each stage to unlock the next. Your unlocked levels are saved on this device.</p>
+        <div id="level-list" class="level-list" role="group" aria-label="Choose a game level"></div>
+        <button id="start-btn" class="primary-btn start-button" type="button">Start Level 1</button>
+      </section>
+    </main>
+
+    <div class="app" id="app" hidden>
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">$</div>
+          <div>Business Math Duo</div>
+        </div>
+
+        <div class="stats">
+          <div class="pill">Level <span id="level-number">1</span></div>
+          <div class="pill">XP: <span id="xp">0</span></div>
+          <div class="pill">Streak: <span id="streak">0</span></div>
+        </div>
+      </header>
+
+      <div id="mascot-bar" class="mascot-bar">
+        <img id="mascot-image" class="mascot" src="sprite_happy.jpg" alt="Happy mascot" />
+        <div id="mascot-message" class="mascot-bubble" role="status" aria-live="polite">
+          Ready to learn? Pick an answer and I'll cheer you on!
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span>Lesson progress</span>
+          <span id="progress-label">0/0</span>
+        </div>
+        <div class="progress-bar">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <main id="game-card" class="card">
+        <div class="lesson-top">
+          <div class="tag" id="category-tag">Business Math</div>
+          <div class="heart-row" id="hearts">❤❤❤</div>
+        </div>
+
+        <div id="prompt" class="prompt">Loading lesson...</div>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback"></div>
+
+        <div class="controls">
+          <button id="skip-btn" class="secondary-btn">Skip</button>
+          <button id="next-btn" class="primary-btn">Check</button>
+        </div>
+      </main>
+
+      <section id="summary" class="card summary">
+        <h2>Lesson complete!</h2>
+        <div class="summary-score" id="summary-score">Score: 0/0</div>
+        <div id="summary-text">Great work.</div>
+        <button id="restart-btn" class="primary-btn">Play Again</button>
+        <button id="next-level-btn" class="primary-btn next-level-button" type="button" hidden>Start Next Level</button>
+      </section>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
