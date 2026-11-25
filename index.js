@@ -362,10 +362,6 @@ document.addEventListener('pointermove', (event) => {
         activeDrag.ghost = activeDrag.cardEl.cloneNode(true);
         activeDrag.ghost.classList.remove('selected', 'is-dragging');
         activeDrag.ghost.classList.add('drag-ghost');
-        activeDrag.ghost.classList.toggle(
-            'is-hard-mode',
-            document.getElementById('solitaire-game').classList.contains('is-hard-mode')
-        );
         activeDrag.ghost.setAttribute('aria-hidden', 'true');
         document.body.appendChild(activeDrag.ghost);
     }
@@ -553,7 +549,7 @@ document.getElementById('draw-card').addEventListener('click', drawFromStock);
 document.getElementById('hard-mode').addEventListener('click', (event) => {
     const button = event.currentTarget;
     const isHardMode = button.getAttribute('aria-pressed') !== 'true';
-    document.getElementById('solitaire-game').classList.toggle('is-hard-mode', isHardMode);
+    document.body.classList.toggle('is-hard-mode', isHardMode);
     button.setAttribute('aria-pressed', String(isHardMode));
     button.textContent = `Hard Mode: ${isHardMode ? 'On' : 'Off'}`;
 });
