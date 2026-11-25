@@ -362,6 +362,10 @@ document.addEventListener('pointermove', (event) => {
         activeDrag.ghost = activeDrag.cardEl.cloneNode(true);
         activeDrag.ghost.classList.remove('selected', 'is-dragging');
         activeDrag.ghost.classList.add('drag-ghost');
+        activeDrag.ghost.classList.toggle(
+            'is-hard-mode',
+            document.getElementById('solitaire-game').classList.contains('is-hard-mode')
+        );
         activeDrag.ghost.setAttribute('aria-hidden', 'true');
         document.body.appendChild(activeDrag.ghost);
     }
