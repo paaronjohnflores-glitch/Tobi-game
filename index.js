@@ -546,6 +546,13 @@ function render() {
 
 document.getElementById('new-game').addEventListener('click', initializeGame);
 document.getElementById('draw-card').addEventListener('click', drawFromStock);
+document.getElementById('hard-mode').addEventListener('click', (event) => {
+    const button = event.currentTarget;
+    const isHardMode = button.getAttribute('aria-pressed') !== 'true';
+    document.getElementById('solitaire-game').classList.toggle('is-hard-mode', isHardMode);
+    button.setAttribute('aria-pressed', String(isHardMode));
+    button.textContent = `Hard Mode: ${isHardMode ? 'On' : 'Off'}`;
+});
 document.getElementById('play-solitaire').addEventListener('click', () => {
     document.getElementById('game-picker').hidden = true;
     document.getElementById('solitaire-game').hidden = false;

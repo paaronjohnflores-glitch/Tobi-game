@@ -337,6 +337,10 @@
         text-transform: uppercase;
       }
 
+      #solitaire-game.is-hard-mode .card-concept {
+        visibility: hidden;
+      }
+
       .tableau {
         display: grid;
         grid-template-columns: repeat(7, minmax(var(--card-width), 1fr));
@@ -526,6 +530,7 @@
           <button id="back-to-picker" type="button">Choose Game</button>
           <button id="new-game">New Game</button>
           <button id="draw-card">Draw Card</button>
+          <button id="hard-mode" type="button" aria-pressed="false">Hard Mode: Off</button>
         </div>
       </header>
 
